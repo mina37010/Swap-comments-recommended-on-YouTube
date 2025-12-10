@@ -11,8 +11,7 @@
         }, 300);
     };
 
-    waitForEl("ytd-menu-renderer", (menuRenderer) => {
-
+    const createSwapButton = (menuRenderer) => {
         if (document.getElementById("yt-swap-btn")) return;
 
         const shape = document.createElement("yt-button-shape");
@@ -29,8 +28,6 @@
             yt-spec-button-shape-next--enable-backdrop-filter-experiment
         `.replace(/\s+/g, ' ').trim();
 
-
-        // === ICON ⇒ arrows ===
         const iconWrap = document.createElement("div");
         iconWrap.className = "yt-spec-button-shape-next__icon";
         iconWrap.innerHTML = `
@@ -63,69 +60,73 @@
         btn.appendChild(iconWrap);
         btn.appendChild(touch);
         shape.appendChild(btn);
+        menuRenderer.appendChild(shape);
 
-
-        const container = menuRenderer.querySelector("ytd-menu-renderer")
-            || menuRenderer;
-        container.appendChild(shape);
-
-
-        const tooltip = document.createElement("div");
-        tooltip.className = "yt-swap-tooltip";
-        tooltip.textContent = "コメント ↔︎ レコメンド";
-        document.body.appendChild(tooltip);
-
-
-
-        btn.addEventListener("mouseenter", () => {
-            const rect = btn.getBoundingClientRect();
-
-            tooltip.style.left = `${rect.left + rect.width / 2}px`;
-            tooltip.style.top = `${rect.bottom + 6 + window.scrollY}px`;
-
-            tooltip.style.transform = "translateX(-50%) translateY(-2px)";
-            tooltip.classList.add("visible");
-        });
-
-        btn.addEventListener("mousemove", () => {
-            const rect = btn.getBoundingClientRect();
-            tooltip.style.left = `${rect.left + rect.width / 2}px`;
-        });
-
-        btn.addEventListener("mouseleave", () => {
-            tooltip.classList.remove("visible");
-        });
-
-
-        //
-        // === SWAP LOGIC ===
-        //
+        // swap logic
         let swapped = localStorage.getItem("ytSwapState") === "1";
 
         const movePanels = () => {
-            const comments = document.querySelector("ytd-comments");
-            const related = document.querySelector("#related");
+            const comments = document.querySelector("#comments");
+            const secondaryInner = document.querySelector("#secondary-inner");
             const primary = document.querySelector("#below");
-            const secondary = document.querySelector("#secondary");
 
-            if (!comments || !related || !primary || !secondary) return;
+            if (!comments || !secondaryInner || !primary) return;
+
+            let secondaryPack = document.querySelector("#yt-secondary-pack");
+
+            if (!secondaryPack) {
+                secondaryPack = document.createElement("div");
+                secondaryPack.id = "yt-secondary-pack";
+
+                while (secondaryInner.firstChild) {
+                    secondaryPack.appendChild(secondaryInner.firstChild);
+                }
+
+                secondaryInner.appendChild(secondaryPack);
+            }
 
             if (swapped) {
-                secondary.insertBefore(comments, secondary.firstChild);
-                primary.appendChild(related);
+                primary.appendChild(secondaryPack);
+                secondaryInner.appendChild(comments);
             } else {
-                secondary.insertBefore(related, secondary.firstChild);
                 primary.appendChild(comments);
+                secondaryInner.appendChild(secondaryPack);
             }
         };
-
-        waitForEl("#secondary", movePanels);
 
         btn.addEventListener("click", () => {
             swapped = !swapped;
             localStorage.setItem("ytSwapState", swapped ? "1" : "0");
             movePanels();
         });
-    });
 
+        movePanels();
+    };
+
+    const observeButtonArea = () => {
+        waitForEl("ytd-watch-metadata", (metadata) => {
+            const observer = new MutationObserver(() => {
+                const menuRenderer = metadata.querySelector("ytd-menu-renderer");
+                if (menuRenderer && !document.getElementById("yt-swap-btn")) {
+                    createSwapButton(menuRenderer);
+                }
+            });
+
+            observer.observe(metadata, {
+                childList: true,
+                subtree: true,
+            });
+
+            const menuRenderer = metadata.querySelector("ytd-menu-renderer");
+            if (menuRenderer) {
+                createSwapButton(menuRenderer);
+            }
+        });
+    };
+
+    document.addEventListener("yt-navigate-finish", () => {
+        setTimeout(() => {
+            observeButtonArea();
+        }, 200);
+    });
 })();
