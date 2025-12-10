@@ -1,0 +1,15 @@
+{
+  "name": "YouTube コメント / レコメンド入れ替え",
+  "description": "Swap comments and recommended videos on YouTube watch page",
+  "version": "1.0",
+  "manifest_version": 3,
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content.js"],
+      "css": ["style.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

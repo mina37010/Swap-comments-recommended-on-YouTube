@@ -1,0 +1,40 @@
+html, body {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+#columns.ytd-watch-flexy {
+  display: flex !important;
+  flex-direction: row !important;
+  height: 100vh !important;
+}
+
+#primary.ytd-watch-flexy {
+  overflow-y: auto !important;
+  height: 100vh !important;
+}
+
+#secondary.ytd-watch-flexy {
+  overflow-y: auto !important;
+  height: 100vh !important;
+}
+
+.yt-swap-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(97, 97, 97, 0.90);
+    color: white;
+    font-size: 12px;
+    padding: 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity .18s ease-in-out,
+                transform .18s ease-in-out;
+    z-index: 99999;
+    white-space: nowrap;
+}
+.yt-swap-tooltip.visible {
+    opacity: 1;
+    transform: translateY(-20px);
+}
