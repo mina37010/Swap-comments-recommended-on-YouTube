@@ -1,35 +1,101 @@
-#columns.ytd-watch-flexy {
-  display: flex !important;
-  flex-direction: row !important;
-  height: 100vh !important;
+
+/* ========================================
+   YouTube 2カラム独立スクロール
+   ======================================== */
+
+@media (min-width: 1000px) {
+
+    /* 通常の2カラム表示のみ適用 */
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen])
+    #columns.ytd-watch-flexy {
+        display: flex !important;
+        flex-direction: row !important;
+
+        height: calc(100vh - 56px) !important;
+        height: calc(
+            100dvh - var(--ytd-masthead-height, 56px)
+        ) !important;
+
+        min-height: 0 !important;
+        overflow: hidden !important;
+        box-sizing: border-box;
+    }
+
+    /* 左右を個別にスクロール */
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen])
+    #primary.ytd-watch-flexy,
+
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen])
+    #secondary.ytd-watch-flexy {
+        height: 100% !important;
+        min-height: 0 !important;
+
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+
+        overscroll-behavior-y: contain;
+        box-sizing: border-box;
+    }
 }
 
-#primary.ytd-watch-flexy {
-  overflow-y: auto !important;
-  height: 100vh !important;
+
+/* ========================================
+   入れ替え時のレイアウト
+   ======================================== */
+
+/* 右側に移動したコメント */
+ytd-watch-flexy[data-yt-swap-active]
+#secondary-inner #comments {
+    display: block !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+    margin: 0 !important;
+    box-sizing: border-box;
 }
 
-#secondary.ytd-watch-flexy {
-  overflow-y: auto !important;
-  height: 100vh !important;
+/* 左側に移動したおすすめ動画 */
+ytd-watch-flexy[data-yt-swap-active]
+#below #related {
+    display: block !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+    margin-top: 16px !important;
+    box-sizing: border-box;
 }
 
-.yt-swap-tooltip {
-    position: absolute;
-    pointer-events: none;
-    background: rgba(97, 97, 97, 0.90);
-    color: white;
-    font-size: 12px;
-    padding: 8px;
-    border-radius: 4px;
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: opacity .18s ease-in-out,
-                transform .18s ease-in-out;
-    z-index: 99999;
-    white-space: nowrap;
+/* 入れ替え後の横幅のはみ出し防止 */
+ytd-watch-flexy[data-yt-swap-active]
+#secondary-inner {
+    min-width: 0;
+    max-width: 100%;
 }
-.yt-swap-tooltip.visible {
-    opacity: 1;
-    transform: translateY(-20px);
+
+
+/* ========================================
+   入れ替えボタン
+   ======================================== */
+
+#yt-swap-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#yt-swap-btn button {
+    cursor: pointer;
+}
+
+/* キーボード操作時のフォーカス表示 */
+#yt-swap-btn button:focus-visible {
+    outline: 2px solid var(--yt-spec-text-primary);
+    outline-offset: 2px;
 }
